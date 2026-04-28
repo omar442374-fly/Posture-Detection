@@ -114,9 +114,7 @@ export default function CameraFeed ({ postureState, serverUrl }) {
 
   const isGood = postureState?.label === 'good_posture'
   const isDetecting = postureState !== null
-  const borderClass = !cameraReady
-    ? styles.borderIdle
-    : !isDetecting
+  const borderClass = !cameraReady || !isDetecting
     ? styles.borderIdle
     : isGood
     ? styles.borderGood

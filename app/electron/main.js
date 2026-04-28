@@ -87,13 +87,14 @@ function createWindow () {
 
 function setupPermissions () {
   // Allow camera and microphone access so getUserMedia() works in the renderer
+  const ALLOWED_PERMISSIONS = ['media', 'mediaKeySystem', 'notifications', 'clipboard-sanitized-write']
+
   session.defaultSession.setPermissionRequestHandler((_webContents, permission, callback) => {
-    const allowed = ['media', 'mediaKeySystem', 'notifications', 'clipboard-sanitized-write']
-    callback(allowed.includes(permission))
+    callback(ALLOWED_PERMISSIONS.includes(permission))
   })
 
   session.defaultSession.setPermissionCheckHandler((_webContents, permission) => {
-    return ['media', 'mediaKeySystem', 'notifications', 'clipboard-sanitized-write'].includes(permission)
+    return ALLOWED_PERMISSIONS.includes(permission)
   })
 }
 
