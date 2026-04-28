@@ -1,0 +1,44 @@
+# Node / npm
+node_modules/
+dist/
+dist-electron/
+*.local
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+venv/
+.venv/
+env/
+*.egg-info/
+.eggs/
+
+# Model artefacts & data
+model/data/
+model/posture_model.keras
+model/posture_model.tflite
+model/posture_model/
+model/class_names.json
+model/*.h5
+
+# Build outputs
+*.dmg
+*.exe
+*.msi
+*.nsis
+release/
+out/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp

@@ -1,0 +1,93 @@
+.wrapper {
+  position: relative;
+  flex: 1;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background: var(--color-neutral-800);
+  border: 2px solid transparent;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.borderIdle  { border-color: var(--color-neutral-600); }
+.borderGood  { border-color: var(--color-brand-500); box-shadow: var(--shadow-glow-brand); }
+.borderBad   { border-color: var(--color-danger-600); box-shadow: var(--shadow-glow-danger); animation: pulseBad 2s ease infinite; }
+
+@keyframes pulseBad {
+  0%, 100% { box-shadow: var(--shadow-glow-danger); }
+  50%       { box-shadow: 0 0 30px 6px rgb(220 38 38 / .6); }
+}
+
+.video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.hidden {
+  display: none;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  color: var(--color-neutral-400);
+  background: var(--color-neutral-800);
+}
+
+.placeholderIcon {
+  width: 48px;
+  height: 48px;
+  color: var(--color-neutral-500);
+}
+
+.placeholderSub {
+  font-size: var(--font-size-sm);
+  color: var(--color-neutral-600);
+}
+
+.statusPill {
+  position: absolute;
+  bottom: var(--space-4);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: rgb(15 23 42 / .85);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-neutral-100);
+  white-space: nowrap;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.dotGood { background: var(--color-brand-500); animation: pulse 2s ease infinite; }
+.dotBad  { background: var(--color-danger-600); animation: pulse 1s ease infinite; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
