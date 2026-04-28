@@ -3,6 +3,7 @@ import styles from './CameraFeed.module.css'
 import { CameraOffIcon } from './Icons.jsx'
 
 const INFERENCE_INTERVAL_MS = 500   // send frame every 500ms
+const FETCH_TIMEOUT_MS = 2000       // abort inference request after this many ms
 
 export default function CameraFeed ({ postureState, serverUrl }) {
   const videoRef = useRef(null)
@@ -10,64 +11,10 @@ export default function CameraFeed ({ postureState, serverUrl }) {
   const overlayRef = useRef(null)
   const streamRef = useRef(null)
   const timerRef = useRef(null)
-
-  const startCamera = useCallback(async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
-        audio: false
-      })
-      streamRef.current = stream
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream
-        await videoRef.current.play()
-        scheduleInference()
-      }
-    } catch (err) {
-      console.error('Camera error:', err)
-    }
-  }, [serverUrl])
-
-  const scheduleInference = useCallback(() => {
-    timerRef.current = setInterval(() => {
-      captureAndSend()
-    }, INFERENCE_INTERVAL_MS)
-  }, [serverUrl])
-
-  const captureAndSend = useCallback(async () => {
-    const video = videoRef.current
-    const canvas = canvasRef.current
-    if (!video || !canvas || video.readyState < 2) return
-
-    const ctx = canvas.getContext('2d')
-    canvas.width = video.videoWidth
-    canvas.height = video.videoHeight
-    ctx.drawImage(video, 0, 0)
-
-    canvas.toBlob(async (blob) => {
-      if (!blob) return
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 2000)
-      try {
-        const formData = new FormData()
-        formData.append('frame', blob, 'frame.jpg')
-        const res = await fetch(`${serverUrl}/predict`, {
-          method: 'POST',
-          body: formData,
-          signal: controller.signal
-        })
-        if (!res.ok) return
-        const data = await res.json()
-        drawOverlay(data)
-        // Publish result so usePostureDetection hook can react
-        window.dispatchEvent(new CustomEvent('posture-result', { detail: data }))
-      } catch {
-        // server not yet running or timeout — silently skip
-      } finally {
-        clearTimeout(timeoutId)
-      }
-    }, 'image/jpeg', 0.8)
-  }, [serverUrl, drawOverlay])
+  // Keep a ref to serverUrl so capture callbacks always use the latest value
+  // without needing to restart the camera/interval on every URL change
+  const serverUrlRef = useRef(serverUrl)
+  useEffect(() => { serverUrlRef.current = serverUrl }, [serverUrl])
 
   const drawOverlay = useCallback((data) => {
     const overlay = overlayRef.current
@@ -88,6 +35,58 @@ export default function CameraFeed ({ postureState, serverUrl }) {
       }
     }
   }, [])
+
+  const captureAndSend = useCallback(async () => {
+    const video = videoRef.current
+    const canvas = canvasRef.current
+    if (!video || !canvas || video.readyState < 2) return
+
+    const ctx = canvas.getContext('2d')
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    ctx.drawImage(video, 0, 0)
+
+    canvas.toBlob(async (blob) => {
+      if (!blob) return
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS)
+      try {
+        const formData = new FormData()
+        formData.append('frame', blob, 'frame.jpg')
+        const res = await fetch(`${serverUrlRef.current}/predict`, {
+          method: 'POST',
+          body: formData,
+          signal: controller.signal
+        })
+        if (!res.ok) return
+        const data = await res.json()
+        drawOverlay(data)
+        // Publish result so usePostureDetection hook can react
+        window.dispatchEvent(new CustomEvent('posture-result', { detail: data }))
+      } catch {
+        // server not yet running or timeout — silently skip
+      } finally {
+        clearTimeout(timeoutId)
+      }
+    }, 'image/jpeg', 0.8)
+  }, [drawOverlay])
+
+  const startCamera = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
+        audio: false
+      })
+      streamRef.current = stream
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream
+        await videoRef.current.play()
+        timerRef.current = setInterval(captureAndSend, INFERENCE_INTERVAL_MS)
+      }
+    } catch (err) {
+      console.error('Camera error:', err)
+    }
+  }, [captureAndSend])
 
   useEffect(() => {
     startCamera()

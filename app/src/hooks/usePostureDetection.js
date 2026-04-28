@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 
 const POLL_INTERVAL_MS = 500
 const HEALTH_CHECK_INTERVAL_MS = 5000
+const FETCH_TIMEOUT_MS = 2000
 
 /**
  * usePostureDetection
@@ -47,7 +48,7 @@ export default function usePostureDetection (settings) {
     let cancelled = false
     const check = async () => {
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 2000)
+      const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS)
       try {
         const res = await fetch(`${serverUrl}/health`, { signal: controller.signal })
         if (!res.ok) throw new Error('unhealthy')

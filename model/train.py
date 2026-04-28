@@ -160,7 +160,7 @@ def main():
             str(output_path), save_best_only=True, monitor="val_accuracy", verbose=1
         ),
         tf.keras.callbacks.EarlyStopping(
-            patience=5, monitor="val_accuracy", verbose=1
+            patience=8, monitor="val_accuracy", verbose=1
         ),
         tf.keras.callbacks.ReduceLROnPlateau(
             factor=0.5, patience=3, min_lr=1e-6, verbose=1
