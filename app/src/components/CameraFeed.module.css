@@ -59,6 +59,56 @@
   color: var(--color-neutral-600);
 }
 
+.retryBtn {
+  margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-6);
+  border-radius: var(--radius-md);
+  background: var(--color-brand-600);
+  color: white;
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.retryBtn:hover { background: var(--color-brand-700); }
+
+/* Spinner for camera initialising */
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-neutral-600);
+  border-top-color: var(--color-brand-500);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Small banner shown when camera is ready but server not yet connected */
+.serverBanner {
+  position: absolute;
+  top: var(--space-4);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: rgb(15 23 42 / .85);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-neutral-300);
+  white-space: nowrap;
+  pointer-events: none;
+  border: 1px solid var(--color-neutral-600);
+}
+
 .statusPill {
   position: absolute;
   bottom: var(--space-4);
