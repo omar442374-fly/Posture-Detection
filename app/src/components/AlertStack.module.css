@@ -1,0 +1,99 @@
+.stack {
+  position: fixed;
+  bottom: var(--space-6);
+  right: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  z-index: var(--z-toast);
+  max-width: 400px;
+  width: calc(100vw - var(--space-12));
+  pointer-events: none;
+}
+
+.card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  border: 1px solid transparent;
+  backdrop-filter: blur(12px);
+  pointer-events: auto;
+  animation: slideIn var(--transition-base) ease-out;
+  box-shadow: var(--shadow-lg);
+}
+
+@keyframes slideIn {
+  from { transform: translateX(120%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+.type_posture {
+  background: rgb(185 28 28 / .85);
+  border-color: var(--color-danger-600);
+  color: var(--color-danger-100);
+}
+
+.type_blink {
+  background: rgb(37 99 235 / .85);
+  border-color: var(--color-info-600);
+  color: var(--color-info-100);
+}
+
+.type_water {
+  background: rgb(13 148 136 / .85);
+  border-color: var(--color-brand-700);
+  color: var(--color-brand-100);
+}
+
+.icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+}
+
+.icon svg { width: 100%; height: 100%; }
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.typeLabel {
+  display: block;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  opacity: 0.8;
+  margin-bottom: var(--space-1);
+}
+
+.message {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-snug);
+}
+
+.dismiss {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-md);
+  opacity: 0.7;
+  transition: opacity var(--transition-fast), background var(--transition-fast);
+  color: inherit;
+}
+
+.dismiss:hover {
+  opacity: 1;
+  background: rgb(255 255 255 / .15);
+}
+
+.dismiss svg { width: 16px; height: 16px; }

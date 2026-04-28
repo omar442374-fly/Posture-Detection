@@ -1,0 +1,175 @@
+.card {
+  background: var(--color-surface-raised);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  border: 1px solid var(--color-neutral-700);
+}
+
+.heading {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-neutral-50);
+}
+
+/* ── Status Badge ──────────────────────────────────── */
+
+.statusBadge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  transition: background var(--transition-base), color var(--transition-base);
+}
+
+.good {
+  background: rgb(20 184 166 / .12);
+  color: var(--color-brand-400);
+  border: 1px solid rgb(20 184 166 / .3);
+}
+
+.bad {
+  background: rgb(220 38 38 / .12);
+  color: var(--color-danger-400);
+  border: 1px solid rgb(220 38 38 / .3);
+  animation: shakeBadge 0.5s ease;
+}
+
+@keyframes shakeBadge {
+  0%,100% { transform: translateX(0); }
+  20%     { transform: translateX(-4px); }
+  40%     { transform: translateX(4px); }
+  60%     { transform: translateX(-3px); }
+  80%     { transform: translateX(3px); }
+}
+
+.icon { width: 28px; height: 28px; flex-shrink: 0; }
+
+.label {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+}
+
+/* ── Confidence Bar ────────────────────────────────── */
+
+.confidence {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.confLabel {
+  font-size: var(--font-size-sm);
+  color: var(--color-neutral-400);
+  min-width: 80px;
+}
+
+.confBar {
+  flex: 1;
+  height: 8px;
+  background: var(--color-neutral-700);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.confFill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width var(--transition-base);
+}
+
+.fillGood { background: var(--color-brand-500); }
+.fillBad  { background: var(--color-danger-600); }
+
+.confValue {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-neutral-200);
+  min-width: 36px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Stats Grid ────────────────────────────────────── */
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.statTile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  background: var(--color-neutral-800);
+  border: 1px solid var(--color-neutral-700);
+}
+
+.tileIcon { width: 18px; height: 18px; }
+
+.accent_success .tileIcon { color: var(--color-success-400); }
+.accent_warning .tileIcon { color: var(--color-warning-400); }
+.accent_danger  .tileIcon { color: var(--color-danger-400); }
+.accent_info    .tileIcon { color: var(--color-info-400); }
+.accent_brand   .tileIcon { color: var(--color-brand-400); }
+
+.tileValue {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-neutral-100);
+  font-variant-numeric: tabular-nums;
+}
+
+.tileLabel {
+  font-size: var(--font-size-xs);
+  color: var(--color-neutral-500);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  text-align: center;
+}
+
+/* ── Tips ──────────────────────────────────────────── */
+
+.tips {
+  border-top: 1px solid var(--color-neutral-700);
+  padding-top: var(--space-4);
+}
+
+.tipsHeading {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-neutral-300);
+  margin-bottom: var(--space-3);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.tipsList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.tipsList li {
+  font-size: var(--font-size-sm);
+  color: var(--color-neutral-400);
+  padding-left: var(--space-4);
+  position: relative;
+  line-height: var(--line-height-snug);
+}
+
+.tipsList li::before {
+  content: '›';
+  position: absolute;
+  left: 0;
+  color: var(--color-brand-500);
+  font-weight: bold;
+}
