@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback, useState } from 'react'
 import styles from './CameraFeed.module.css'
 import { CameraOffIcon } from './Icons.jsx'
 
@@ -11,6 +11,8 @@ export default function CameraFeed ({ postureState, serverUrl }) {
   const overlayRef = useRef(null)
   const streamRef = useRef(null)
   const timerRef = useRef(null)
+  const [cameraReady, setCameraReady] = useState(false)
+  const [cameraError, setCameraError] = useState(null)
   // Keep a ref to serverUrl so capture callbacks always use the latest value
   // without needing to restart the camera/interval on every URL change
   const serverUrlRef = useRef(serverUrl)
@@ -72,6 +74,8 @@ export default function CameraFeed ({ postureState, serverUrl }) {
   }, [drawOverlay])
 
   const startCamera = useCallback(async () => {
+    setCameraError(null)
+    setCameraReady(false)
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
@@ -81,10 +85,20 @@ export default function CameraFeed ({ postureState, serverUrl }) {
       if (videoRef.current) {
         videoRef.current.srcObject = stream
         await videoRef.current.play()
+        setCameraReady(true)
         timerRef.current = setInterval(captureAndSend, INFERENCE_INTERVAL_MS)
       }
     } catch (err) {
       console.error('Camera error:', err)
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        setCameraError('Camera access denied. Please allow camera permissions and try again.')
+      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+        setCameraError('No camera found. Please connect a webcam and try again.')
+      } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+        setCameraError('Camera is in use by another application. Close it and try again.')
+      } else {
+        setCameraError(`Could not start camera: ${err.message}`)
+      }
     }
   }, [captureAndSend])
 
@@ -100,7 +114,9 @@ export default function CameraFeed ({ postureState, serverUrl }) {
 
   const isGood = postureState?.label === 'good_posture'
   const isDetecting = postureState !== null
-  const borderClass = !isDetecting
+  const borderClass = !cameraReady
+    ? styles.borderIdle
+    : !isDetecting
     ? styles.borderIdle
     : isGood
     ? styles.borderGood
@@ -127,13 +143,33 @@ export default function CameraFeed ({ postureState, serverUrl }) {
         aria-hidden="true"
       />
 
-      {!isDetecting && (
+      {/* Camera failed — show error with retry */}
+      {cameraError && (
         <div className={styles.placeholder} aria-live="polite">
           <CameraOffIcon className={styles.placeholderIcon} aria-hidden="true" />
-          <p>Connecting to inference server…</p>
-          <p className={styles.placeholderSub}>
-            Make sure the Python server is running
-          </p>
+          <p>{cameraError}</p>
+          <button
+            className={styles.retryBtn}
+            onClick={startCamera}
+            aria-label="Retry camera access"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
+      {/* Camera not yet started (no error) */}
+      {!cameraReady && !cameraError && (
+        <div className={styles.placeholder} aria-live="polite">
+          <div className={styles.spinner} aria-hidden="true" />
+          <p>Starting camera…</p>
+        </div>
+      )}
+
+      {/* Camera running but server not yet connected */}
+      {cameraReady && !isDetecting && (
+        <div className={styles.serverBanner} aria-live="polite">
+          <span>Connecting to inference server…</span>
         </div>
       )}
 
@@ -147,9 +183,11 @@ export default function CameraFeed ({ postureState, serverUrl }) {
           className={`${styles.statusDot} ${isGood ? styles.dotGood : styles.dotBad}`}
           aria-hidden="true"
         />
-        {isDetecting
+        {!cameraReady
+          ? cameraError ? 'Camera error' : 'Starting…'
+          : isDetecting
           ? isGood ? 'Good posture' : 'Posture alert!'
-          : 'Initialising…'}
+          : 'Waiting for server…'}
       </div>
     </div>
   )

@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Tray, Menu, nativeImage, Notification, ipcMain, shell } = require('electron')
+const { app, BrowserWindow, Tray, Menu, nativeImage, Notification, ipcMain, shell, session } = require('electron')
 const path = require('path')
 const { spawn } = require('child_process')
 const http = require('http')
@@ -74,7 +74,7 @@ function createWindow () {
     mainWindow.loadURL('http://localhost:5173')
     mainWindow.webContents.openDevTools({ mode: 'detach' })
   } else {
-    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'))
+    mainWindow.loadFile(path.join(__dirname, '../dist/renderer/index.html'))
   }
 
   mainWindow.on('close', (e) => {
@@ -83,11 +83,28 @@ function createWindow () {
   })
 }
 
+// ── Permission Handlers ───────────────────────────────────────────────────────
+
+function setupPermissions () {
+  // Allow camera and microphone access so getUserMedia() works in the renderer
+  session.defaultSession.setPermissionRequestHandler((_webContents, permission, callback) => {
+    const allowed = ['media', 'mediaKeySystem', 'notifications', 'clipboard-sanitized-write']
+    callback(allowed.includes(permission))
+  })
+
+  session.defaultSession.setPermissionCheckHandler((_webContents, permission) => {
+    return ['media', 'mediaKeySystem', 'notifications', 'clipboard-sanitized-write'].includes(permission)
+  })
+}
+
 // ── System Tray ───────────────────────────────────────────────────────────────
 
 function createTray () {
-  const iconPath = path.join(__dirname, '../public/icon.png')
-  const icon = nativeImage.createFromPath(iconPath)
+  // Try PNG first (best quality for tray), fall back to SVG, then empty
+  const pngPath = path.join(__dirname, '../public/icon.png')
+  const svgPath = path.join(__dirname, '../public/icon.svg')
+  let icon = nativeImage.createFromPath(pngPath)
+  if (icon.isEmpty()) icon = nativeImage.createFromPath(svgPath)
   tray = new Tray(icon.isEmpty() ? nativeImage.createEmpty() : icon)
 
   const contextMenu = Menu.buildFromTemplate([
@@ -116,6 +133,7 @@ ipcMain.handle('open-external', (_event, url) => {
 // ── App lifecycle ─────────────────────────────────────────────────────────────
 
 app.whenReady().then(() => {
+  setupPermissions()
   startPythonServer()
   createTray()
 
