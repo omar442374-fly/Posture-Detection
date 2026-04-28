@@ -8,6 +8,9 @@
     "build": "electron-vite build",
     "preview": "electron-vite preview",
     "lint": "eslint src --ext .js,.jsx",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "package": "electron-builder --win"
   },
   "keywords": [
